@@ -8,6 +8,25 @@ from sqlalchemy.testing.config import ident
 filename = "calculator.apk"
 
 
+def calculate_risk(app_data):
+    score = 0
+    dangerous_perms = app_data['dangerous_permissions']
+    score += len(dangerous_perms) * 3
+    score += max(0, app_data['total_permissions'] - 10)
+
+    super_dangerous_permissions = app_data['critical_permissions']
+    score += sum(3 for p in dangerous_perms if any(risk in p for risk in super_dangerous_permissions))
+
+    if score < 40:
+        print("Apps permissions are generally safe")
+    else:print(f"App contains permissions that may risk sensitive data\n Dangerous Permissions:{len(dangerous_perms)}\n"
+               f"Critical Permissions:{len(super_dangerous_permissions)}"
+               )
+
+    return min(score,100)
+
+
+
 def analyse_file(path):
 
     path = input("Enter path to APK file")
@@ -26,16 +45,23 @@ def analyse_file(path):
 
         #filter out dangerous permissions
         dangerous_keywords = ['CAMERA','LOCATION','MICROPHONE','CONTACTS','SMS','PHONE']
+        critical_keywords = ['READ_CONTACTS','ACCESS_FINE_LOCATION','RECORD_AUDIO','CAMERA']
         app_data['dangerous_permissions'] = [
             perm for perm in app_data['permissions'] if any (keyword in perm for keyword in dangerous_keywords)
         ]
+        app_data['critical_permissions'] = [perm for perm in app_data['permissions'] if any(keyword in perm for keyword in critical_keywords)]
 
         print(f"Analysed: {app_data['app_name']} with {len(app_data['permissions'])} permissions")
-        return app_data
+        print(f"App safety score: {calculate_risk(app_data)}")
+
 
 
     except Exception as e:
         print(f"Erorr locating path {path} maybe check the spelling")
+
+
+
+
 
 
 results = []
@@ -52,7 +78,7 @@ for apk_file in apk_files:
 
 outputfile = f"app_analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
 with open(outputfile,'w') as f:
-    json.dump(results,f,ident=2)
+    json.dump(results,f,indent=2)
 
 print(f"Results successfully saved to: {outputfile}")
 print(f"Analysed {len(results)} app successfully")

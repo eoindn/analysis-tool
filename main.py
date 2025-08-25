@@ -26,10 +26,33 @@ def calculate_risk(app_data):
     return min(score,100)
 
 
+def compare_apps(app_data1, app_data2):
+    print(f"\n=== COMPARING APPS ===")
+    print(f"App 1: {app_data1['app_name']}")
+    print(f"App 2: {app_data2['app_name']}")
+
+    # Compare total permissions
+    print(f"\nTotal Permissions:")
+    print(f"  {app_data1['app_name']}: {app_data1['total_permissions']}")
+    print(f"  {app_data2['app_name']}: {app_data2['total_permissions']}")
+
+    # Compare risk scores (you'll need to store this in app_data)
+    print(f"\nRisk Scores:")
+    print(f"  {app_data1['app_name']}: {app_data1.get('risk_score', 'Not calculated')}")
+    print(f"  {app_data2['app_name']}: {app_data2.get('risk_score', 'Not calculated')}")
+
+    # Simple winner
+    if app_data1['total_permissions'] < app_data2['total_permissions']:
+        print(f"\n🏆 {app_data1['app_name']} appears safer (fewer permissions)")
+    else:
+        print(f"\n🏆 {app_data2['app_name']} appears safer (fewer permissions)")
+
+
+
 
 def analyse_file(path):
 
-    path = input("Enter path to APK file")
+
     try:
         apk = APK(path)
         app_data = {
@@ -51,8 +74,24 @@ def analyse_file(path):
         ]
         app_data['critical_permissions'] = [perm for perm in app_data['permissions'] if any(keyword in perm for keyword in critical_keywords)]
 
+        app_data['risk_score'] = calculate_risk(app_data)
+
         print(f"Analysed: {app_data['app_name']} with {len(app_data['permissions'])} permissions")
         print(f"App safety score: {calculate_risk(app_data)}")
+
+        compare_apps()
+
+
+
+        with open("results.txt","a") as f:
+            print(f"Text file results for {app_data['app_name']}\n")
+            print(f"Analysed: {app_data['app_name']} with {len(app_data['permissions'])} permissions",file=f)
+            print(f"App safety score: {calculate_risk(app_data)}",file=f)
+            f.close()
+
+
+        return app_data
+
 
 
 
@@ -73,6 +112,9 @@ for apk_file in apk_files:
     result = analyse_file(apk_file)
     if result:
         results.append(result)
+
+if len(results) >= 2:
+    compare_apps(results[0],results[1])
 
         #save to json
 

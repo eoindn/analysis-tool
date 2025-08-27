@@ -96,7 +96,7 @@ def analyse_file(path):
 
 
     except Exception as e:
-        print(f"Erorr locating path {path} maybe check the spelling")
+        print(f"Error locating path {path} maybe check the spelling")
 
 
 

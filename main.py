@@ -19,7 +19,7 @@ def calculate_risk(app_data):
 
     if score < 40:
         print("Apps permissions are generally safe")
-    else:print(f"App contains permissions that may risk sensitive data\n Dangerous Permissions:{len(dangerous_perms)}\n"
+    else:print(f"App contains permissions that may risk sensitive data!\n\nDangerous Permissions:{len(dangerous_perms)}\n"
                f"Critical Permissions:{len(super_dangerous_permissions)}"
                )
 
@@ -38,14 +38,17 @@ def compare_apps(app_data1, app_data2):
 
     # Compare risk scores (you'll need to store this in app_data)
     print(f"\nRisk Scores:")
-    print(f"  {app_data1['app_name']}: {app_data1.get('risk_score', 'Not calculated')}")
-    print(f"  {app_data2['app_name']}: {app_data2.get('risk_score', 'Not calculated')}")
+    print(f"  {app_data1['app_name']}: {app_data1['risk_score']}")
+    print(f"  {app_data2['app_name']}: {app_data2['risk_score']}")
 
-    # Simple winner
-    if app_data1['total_permissions'] < app_data2['total_permissions']:
-        print(f"\n🏆 {app_data1['app_name']} appears safer (fewer permissions)")
+    #da winner
+    if app_data1['risk_score'] < app_data2['risk_score']:
+        print(f"\n🏆 {app_data1['app_name']} appears safer (lower risk score)")
+    elif app_data2['risk_score'] < app_data1['risk_score']:
+        print(f"\n🏆 {app_data2['app_name']} appears safer (lower risk score)")
     else:
-        print(f"\n🏆 {app_data2['app_name']} appears safer (fewer permissions)")
+        print(f"\n🤝 Both apps have similar risk levels")
+
 
 
 
@@ -77,17 +80,18 @@ def analyse_file(path):
         app_data['risk_score'] = calculate_risk(app_data)
 
         print(f"Analysed: {app_data['app_name']} with {len(app_data['permissions'])} permissions")
-        print(f"App safety score: {calculate_risk(app_data)}")
+        print(f"App Danger score: {app_data['risk_score']}")
 
-        compare_apps()
+
 
 
 
         with open("results.txt","a") as f:
             print(f"Text file results for {app_data['app_name']}\n")
             print(f"Analysed: {app_data['app_name']} with {len(app_data['permissions'])} permissions",file=f)
-            print(f"App safety score: {calculate_risk(app_data)}",file=f)
-            f.close()
+            print(f"Risk Score: {calculate_risk(app_data)}",file=f)
+            print("",file=f)
+
 
 
         return app_data
@@ -96,7 +100,8 @@ def analyse_file(path):
 
 
     except Exception as e:
-        print(f"Error locating path {path} maybe check the spelling")
+        print(f"Error locating path {path}: {e}")
+        return None
 
 
 
@@ -105,7 +110,9 @@ def analyse_file(path):
 
 results = []
 apk_files = [f for f in os.listdir() if f.endswith('.apk')]
-print(f"Found {len(results)} APK files ready for analysis")
+print(f"Found {len(apk_files)} APK files ready for analysis")
+
+open("results.txt","w").close()
 
 
 for apk_file in apk_files:

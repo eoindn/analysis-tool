@@ -54,6 +54,6 @@ def analyze_traffic(filename):
     return requests
 
 
-#RUN NOW
+#RUN NOW yep
 if __name__ == "__main__":
     analyze_traffic("calculator_traffic.flow")

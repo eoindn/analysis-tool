@@ -137,6 +137,6 @@ if results:
     most_permissions = max(results, key=lambda x: x['total_permissions'])
 
     print(f"📈 Average permissions per app: {avg_permissions:.1f}")
-    print(f"🏆 Most permissions: {most_permissions['app_name']} ({most_permissions['total_permissions']})")
+    print(f"🏆 App With Most permissions: {most_permissions['app_name']} ({most_permissions['total_permissions']})")
 
 

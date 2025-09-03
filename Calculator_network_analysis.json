@@ -1,0 +1,10 @@
+{
+  "app_name": "Calculator",
+  "domains_contacted": [
+    "accounts.google.com",
+    "www.googleapis.com",
+    "en.m.wikipedia.org"
+  ],
+  "total_requests": 5,
+  "analysis_date": "2025-08-31T22:16:01.434222"
+}

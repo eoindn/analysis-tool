@@ -1,0 +1,6 @@
+Analysed: Calculator with 6 permissions
+Risk Score: 0
+
+Analysed: Facebook with 90 permissions
+Risk Score: 100
+

@@ -92,7 +92,50 @@ class PermissionBehaviourAnalyser:
                 'description': f"App doesnt request internet however made {dynamic['total_requests']} requests to {len(dynamic['domains_contacted'])}",
                 'solution': 'Suggests the app analysis was interrupted or the app is not being transparent about the permissions it utilises'
             })
+            # Analyze contacted domains for privacy concerns
+        domains = dynamic['domains_contacted']
+        tracking_domains = [d for d in domains if any(tracker in d.lower()
+                                                          for tracker in
+                                                          ['analytics', 'ads', 'tracking', 'doubleclick', 'facebook',
+                                                           'google-analytics'])]
 
+        if tracking_domains:
+            correlation['findings'].append({
+                'type': 'privacy_concern',
+                'severity': 'medium',
+                'description': f"App contacts potential tracking domains: {', '.join(tracking_domains)}",
+                'recommendation': 'Review if tracking is necessary for app functionality'
+            })
+
+        # Check for over-privileged permissions
+        permission_count = static['total_permissions']
+        if permission_count > 20:
+            correlation['findings'].append({
+                'type': 'over_privileged',
+                'severity': 'medium',
+                'description': f"App requests {permission_count} permissions (potentially excessive)",
+                'recommendation': 'Review if all permissions are necessary'
+            })
+
+        # Location permission analysis
+        location_perms = static['location_permissions']
+        location_domains = [d for d in domains if any(loc in d.lower()
+                                                      for loc in ['maps', 'location', 'geocode'])]
+
+        if location_perms and not location_domains:
+            correlation['findings'].append({
+                'type': 'unused_permission',
+                'severity': 'medium',
+                'description': f"App requests location permissions {location_perms} but no location-related network activity detected",
+                'recommendation': 'Consider removing location permissions if not used'
+            })
+
+            self.correlations.update(correlation)
+            return correlation
+
+
+    def generate_report(self,app_name=None):
+        return 
 
 
 perm_anal = PermissionBehaviourAnalyser()
